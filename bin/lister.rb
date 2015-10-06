@@ -171,7 +171,7 @@ class Lister
   def output_both01_iden(ofile = STDOUT)
     title = "FOUND BOTH(IDENTICAL) #{@list_files.join(' & ')}"
     ofile.puts "<<< #{title}: #{@both01_iden.count} >>>"
-    output_result("#{title}", @both01_iden, ofile)
+    # output_result("#{title}", @both01_iden, ofile)
   end
 
   def output_both01_diff(ofile = STDOUT)
@@ -194,16 +194,16 @@ enterprise = ARGV[1] || fail
 
 case action
 when 'list'
-  list_file  = ARGV[2] || fail
+  list_file  = "#{enterprise}_#{ARGV[2]}" || fail
   root       = ARGV[3] || fail
 
   lister = Lister.new(list_files: [list_file], root: "#{root}/#{enterprise}")
 
   lister.make_list
 when 'compare'
-  list_file0 = ARGV[2] || fail
-  list_file1 = ARGV[3] || fail
-  ofile      = ARGV[4] || fail
+  list_file0 = "#{enterprise}_#{ARGV[2]}" || fail
+  list_file1 = "#{enterprise}_#{ARGV[3]}" || fail
+  ofile      = "#{enterprise}_#{ARGV[4]}" || fail
 
   lister = Lister.new(list_files: [list_file0, list_file1])
 
