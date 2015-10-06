@@ -179,15 +179,21 @@ class Lister
     ofile.puts "<<< #{title}: #{@both01_diff.count} >>>"
     output_result("#{title}", @both01_diff, ofile)
   end
+
+  def output_result(tag, result, ofile)
+    result.each do |k,v|
+      ofile.puts v.to_json
+    end
+  end
 end
 
 puts "#{ARGV}"
 
 action     = ARGV[0] || fail
+enterprise = ARGV[1] || fail
 
 case action
 when 'list'
-  enterprise = ARGV[1] || fail
   list_file  = ARGV[2] || fail
   root       = ARGV[3] || fail
 
@@ -195,7 +201,6 @@ when 'list'
 
   lister.make_list
 when 'compare'
-  enterprise = ARGV[1] || fail
   list_file0 = ARGV[2] || fail
   list_file1 = ARGV[3] || fail
   ofile      = ARGV[4] || fail
