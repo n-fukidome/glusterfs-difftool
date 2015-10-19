@@ -169,13 +169,13 @@ class Lister
   def output_only0(ofile = STDOUT)
     title = "FOUND ONLY #{@list_files[0]}"
     ofile.puts "<<< #{title}: #{@only0.count} >>>"
-    # output_result("#{title}", @only0, ofile)
+    output_result("#{title}", @only0, ofile)
   end
 
   def output_only1(ofile = STDOUT)
     title = "FOUND ONLY #{@list_files[1]}"
     ofile.puts "<<< #{title}: #{@only1.count} >>>"
-    # output_result("#{title}", @only1, ofile)
+    output_result("#{title}", @only1, ofile)
   end
 
   def output_both01_iden(ofile = STDOUT)
@@ -187,12 +187,12 @@ class Lister
   def output_both01_diff(ofile = STDOUT)
     title = "FOUND BOTH(DIFFERENT) #{@list_files.join(' & ')}"
     ofile.puts "<<< #{title}: #{@both01_diff.count} >>>"
-    # output_result("#{title}", @both01_diff, ofile)
+    output_result("#{title}", @both01_diff, ofile)
   end
 
   def output_result(tag, result, ofile)
     result.each do |k,v|
-      ofile.puts v.to_json
+      ofile.puts '"' + v.first[:path] + '"'
     end
   end
 
