@@ -130,22 +130,22 @@ class Lister
       end
     end
 
-    count = 0
     # CHECK LIST 1 with LIST 0
     list1.each do |path1,meta1|
       meta0 = list0[path1]
-      next if count > 3
-      binding.pry
-      if meta0 # FOUND IN LIST 0
-        if same?(meta1, meta0)
-          fail if not @both01_iden[path1]
+      begin
+        if meta0 # FOUND IN LIST 0
+          if same?(meta1, meta0)
+            fail if not @both01_iden[path1]
+          else
+            fail if not @both01_diff[path1]
+          end
         else
-          fail if not @both01_diff[path1]
+          @only1[path1] = [meta1]
         end
-      else
-        @only1[path1] = [meta1]
+      rescue => e
+        puts meta0, meta1
       end
-      count += 1
     end
 
     log "FOUND ONLY #{@list_files[0]} #{@only0.count}".blue
@@ -155,14 +155,11 @@ class Lister
 
     t1 = Time.now
     log "FINISH #{__method__} #{t1-t0}".yellow
-  rescue => e
-    puts e.message
-    puts "#{@root}"
   end
 
   def same?(meta0, meta1)
     return false unless meta0[:type] == meta1[:type]
-    if meta0[:type] = 'd'
+    if meta0[:type] == 'd'
       true # meta0[:path] == meta1[:path]
     else
       meta0[:size] == meta1[:size]
@@ -172,13 +169,13 @@ class Lister
   def output_only0(ofile = STDOUT)
     title = "FOUND ONLY #{@list_files[0]}"
     ofile.puts "<<< #{title}: #{@only0.count} >>>"
-    output_result("#{title}", @only0, ofile)
+    # output_result("#{title}", @only0, ofile)
   end
 
   def output_only1(ofile = STDOUT)
     title = "FOUND ONLY #{@list_files[1]}"
     ofile.puts "<<< #{title}: #{@only1.count} >>>"
-    output_result("#{title}", @only1, ofile)
+    # output_result("#{title}", @only1, ofile)
   end
 
   def output_both01_iden(ofile = STDOUT)
@@ -190,13 +187,17 @@ class Lister
   def output_both01_diff(ofile = STDOUT)
     title = "FOUND BOTH(DIFFERENT) #{@list_files.join(' & ')}"
     ofile.puts "<<< #{title}: #{@both01_diff.count} >>>"
-    output_result("#{title}", @both01_diff, ofile)
+    # output_result("#{title}", @both01_diff, ofile)
   end
 
   def output_result(tag, result, ofile)
     result.each do |k,v|
       ofile.puts v.to_json
     end
+  end
+
+  def put_count(enterprise)
+    puts "#{enterprise}, #{@both01_iden.count}, #{@both01_diff.count}, #{@only0.count}, #{@only1.count},"
   end
 end
 
@@ -232,6 +233,7 @@ File.open(target_list, 'r') do |list|
         lister.output_both01_iden(f)
         lister.output_both01_diff(f)
       end
+      lister.put_count enterprise
     end
   end
 end
