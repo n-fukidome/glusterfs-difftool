@@ -16,6 +16,7 @@ class Lister
   def initialize(list_files: [], root: nil)
     @list_files = list_files
     @root       = root
+    log "set #{@root}"
   end
 
   def log(msg, level: :info)
@@ -129,9 +130,12 @@ class Lister
       end
     end
 
+    count = 0
     # CHECK LIST 1 with LIST 0
     list1.each do |path1,meta1|
       meta0 = list0[path1]
+      next if count > 3
+      binding.pry
       if meta0 # FOUND IN LIST 0
         if same?(meta1, meta0)
           fail if not @both01_iden[path1]
@@ -141,6 +145,7 @@ class Lister
       else
         @only1[path1] = [meta1]
       end
+      count += 1
     end
 
     log "FOUND ONLY #{@list_files[0]} #{@only0.count}".blue
@@ -150,10 +155,18 @@ class Lister
 
     t1 = Time.now
     log "FINISH #{__method__} #{t1-t0}".yellow
+  rescue => e
+    puts e.message
+    puts "#{@root}"
   end
 
   def same?(meta0, meta1)
-    meta0[:size] == meta1[:size]
+    return false unless meta0[:type] == meta1[:type]
+    if meta0[:type] = 'd'
+      true # meta0[:path] == meta1[:path]
+    else
+      meta0[:size] == meta1[:size]
+    end
   end
 
   def output_only0(ofile = STDOUT)
@@ -187,32 +200,41 @@ class Lister
   end
 end
 
-puts "#{ARGV}"
+start_time = Time.now
+puts "#{ARGV} #{start_time}"
 
 action     = ARGV[0] || fail
-enterprise = ARGV[1] || fail
+target_list = ARGV[1] || fail
 
-case action
-when 'list'
-  list_file  = "#{enterprise}_#{ARGV[2]}" || fail
-  root       = ARGV[3] || fail
+File.open(target_list, 'r') do |list|
+  list.each_line do |line|  
+    enterprise = line.gsub(/\n/, '')
+    case action
+    when 'list'
+      list_file  = "lists/#{enterprise}_#{ARGV[2]}" || fail
+      root       = ARGV[3] || fail
 
-  lister = Lister.new(list_files: [list_file], root: "#{root}/#{enterprise}")
+      lister = Lister.new(list_files: [list_file], root: "#{root}/#{enterprise}")
 
-  lister.make_list
-when 'compare'
-  list_file0 = "#{enterprise}_#{ARGV[2]}" || fail
-  list_file1 = "#{enterprise}_#{ARGV[3]}" || fail
-  ofile      = "#{enterprise}_#{ARGV[4]}" || fail
+      lister.make_list
+    when 'compare'
+      list_file0 = "lists/#{enterprise}_#{ARGV[2]}" || fail
+      list_file1 = "lists/#{enterprise}_#{ARGV[3]}" || fail
+      ofile      = "results/#{enterprise}_#{ARGV[4]}" || fail
 
-  lister = Lister.new(list_files: [list_file0, list_file1])
+      lister = Lister.new(list_files: [list_file0, list_file1])
 
-  lister.read_lists
-  lister.compute_diff
-  File.open(ofile, 'w') do |f|
-    lister.output_only0(f)
-    lister.output_only1(f)
-    lister.output_both01_iden(f)
-    lister.output_both01_diff(f)
+      lister.read_lists
+      lister.compute_diff
+      File.open(ofile, 'w') do |f|
+        lister.output_only0(f)
+        lister.output_only1(f)
+        lister.output_both01_iden(f)
+        lister.output_both01_diff(f)
+      end
+    end
   end
 end
+
+end_time = Time.now
+puts "END #{end_time - start_time}"
