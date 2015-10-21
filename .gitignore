@@ -1,4 +1,6 @@
 vendor
 TEST_LIST.lst
 TARGET_LIST.lst
-cp_001.log
+cp_*.log
+lists/*.lst
+results/*.lst
