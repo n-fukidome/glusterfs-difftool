@@ -105,7 +105,7 @@ class Lister
     entry
   end
 
-  def compute_diff
+  def compute_diff(ofile_name)
     t0 = Time.now
     log "START #{__method__}".yellow
     @only0       = {}
@@ -150,6 +150,10 @@ class Lister
 
     log "FOUND ONLY #{@list_files[0]} #{@only0.count}".blue
     log "FOUND ONLY #{@list_files[1]} #{@only1.count}".red
+    File.open("ONLY_#{ofile_name}", "w") do |f|
+      target_lists = @only0.count > @only1.count ? @only1 : @only0
+      target_lists.each{|k,v| f.puts('"' + v.first[:path] + '"')}
+    end
     log "FOUND BOTH(IDENTICAL) #{@list_files} #{@both01_iden.count}".blue
     log "FOUND BOTH(DIFFERENT) #{@list_files} #{@both01_diff.count}".red
 
@@ -166,35 +170,35 @@ class Lister
     end
   end
 
-  def output_only0(ofile = STDOUT)
-    title = "FOUND ONLY #{@list_files[0]}"
-    ofile.puts "<<< #{title}: #{@only0.count} >>>"
-    output_result("#{title}", @only0, ofile)
-  end
+  # def output_only0(ofile = STDOUT)
+  #   title = "FOUND ONLY #{@list_files[0]}"
+  #   ofile.puts "<<< #{title}: #{@only0.count} >>>"
+  #   output_result("#{title}", @only0, ofile)
+  # end
 
-  def output_only1(ofile = STDOUT)
-    title = "FOUND ONLY #{@list_files[1]}"
-    ofile.puts "<<< #{title}: #{@only1.count} >>>"
-    output_result("#{title}", @only1, ofile)
-  end
+  # def output_only1(ofile = STDOUT)
+  #   title = "FOUND ONLY #{@list_files[1]}"
+  #   ofile.puts "<<< #{title}: #{@only1.count} >>>"
+  #   output_result("#{title}", @only1, ofile)
+  # end
 
-  def output_both01_iden(ofile = STDOUT)
-    title = "FOUND BOTH(IDENTICAL) #{@list_files.join(' & ')}"
-    ofile.puts "<<< #{title}: #{@both01_iden.count} >>>"
-    # output_result("#{title}", @both01_iden, ofile)
-  end
+  # def output_both01_iden(ofile = STDOUT)
+  #   title = "FOUND BOTH(IDENTICAL) #{@list_files.join(' & ')}"
+  #   ofile.puts "<<< #{title}: #{@both01_iden.count} >>>"
+  #   # output_result("#{title}", @both01_iden, ofile)
+  # end
 
-  def output_both01_diff(ofile = STDOUT)
-    title = "FOUND BOTH(DIFFERENT) #{@list_files.join(' & ')}"
-    ofile.puts "<<< #{title}: #{@both01_diff.count} >>>"
-    output_result("#{title}", @both01_diff, ofile)
-  end
+  # def output_both01_diff(ofile = STDOUT)
+  #   title = "FOUND BOTH(DIFFERENT) #{@list_files.join(' & ')}"
+  #   ofile.puts "<<< #{title}: #{@both01_diff.count} >>>"
+  #   output_result("#{title}", @both01_diff, ofile)
+  # end
 
-  def output_result(tag, result, ofile)
-    result.each do |k,v|
-      ofile.puts '"' + v.first[:path] + '"'
-    end
-  end
+  # def output_result(tag, result, ofile)
+  #   result.each do |k,v|
+  #     ofile.puts '"' + v.first[:path] + '"'
+  #   end
+  # end
 
   def put_count(enterprise)
     puts "#{enterprise}, #{@both01_iden.count}, #{@both01_diff.count}, #{@only0.count}, #{@only1.count},"
@@ -221,18 +225,19 @@ File.open(target_list, 'r') do |list|
     when 'compare'
       list_file0 = "lists/#{enterprise}_#{ARGV[2]}" || fail
       list_file1 = "lists/#{enterprise}_#{ARGV[3]}" || fail
-      ofile      = "results/#{enterprise}_#{ARGV[4]}" || fail
+      # ofile      = "results/#{enterprise}_#{ARGV[4]}" || fail
+      ofile_name = "#{ARGV[4]}" || fail
 
       lister = Lister.new(list_files: [list_file0, list_file1])
 
       lister.read_lists
-      lister.compute_diff
-      File.open(ofile, 'w') do |f|
-        lister.output_only0(f)
-        lister.output_only1(f)
-        lister.output_both01_iden(f)
-        lister.output_both01_diff(f)
-      end
+      lister.compute_diff ofile_name
+      # File.open(ofile, 'w') do |f|
+      #   lister.output_only0(f)
+      #   lister.output_only1(f)
+      #   lister.output_both01_iden(f)
+      #   lister.output_both01_diff(f)
+      # end
       lister.put_count enterprise
     end
   end
