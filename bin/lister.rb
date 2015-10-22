@@ -150,7 +150,7 @@ class Lister
 
     log "FOUND ONLY #{@list_files[0]} #{@only0.count}".blue
     log "FOUND ONLY #{@list_files[1]} #{@only1.count}".red
-    File.open("ONLY_#{ofile_name}", "w") do |f|
+    File.open("ONLY_#{ofile_name}", "a") do |f|
       target_lists = @only0.count > @only1.count ? @only1 : @only0
       target_lists.each{|k,v| f.puts('"' + v.first[:path] + '"')}
     end
