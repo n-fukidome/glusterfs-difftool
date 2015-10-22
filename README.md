@@ -7,7 +7,7 @@
 
 成功すると以下が作成される
 
-- エンタープライズごとのファイルのリスト
+- (`lists` ディレクトリ配下に)エンタープライズごとのファイルのリスト
 - ログのファイル
 
 ```bash:get_list1.sh
@@ -30,7 +30,7 @@ bundle exec ruby bin/lister.rb $ACTION $ACCOUNT_LIST $LIST $ROOT 2> $CP_LOG
 
 成功するといかが作成される
 
-- エンタープライズごとの結果リスト
+- (`results` ディレクトリ配下に)エンタープライズごとの結果リスト
 - ログ
 
 ```bash:compare_001_002.sh
