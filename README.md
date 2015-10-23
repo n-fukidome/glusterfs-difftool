@@ -31,7 +31,8 @@ bundle exec ruby bin/lister.rb $ACTION $ACCOUNT_LIST $LIST $ROOT 2> $CP_LOG
 成功するといかが作成される
 
 - (今は出ないようになっている)(`results` ディレクトリ配下に)エンタープライズごとの結果リスト
-- 少ない方のbrickにだけあるファイルの絶対パスのリスト => ファイル名 `ONLY_<ほにゃらら>`
+- 各brickにだけあるファイルの絶対パスのリスト => ファイル名 `ONLY_<ほにゃらら>`
+- 各brickで内容(サイズ)が違うファイルの絶対パスのリスト => ファイル栄 `DIFF_<ほにゃらら>`
 - ログ
 
 ```bash:compare_001_002.sh
